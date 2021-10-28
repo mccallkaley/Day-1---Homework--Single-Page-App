@@ -18,23 +18,20 @@ def pokemon():
             # The request worked
             if not response.json():
                 return "We had an error loading your data likely the pokemon is not in the database."
-            data = response.json()
-            all_pokemon=[]
-            for 'pokemon' in data:
-                pokemon_dict={
-                    'name':data['forms'][0]['name'],
-                    'base_hp':data['stats'][0]['base_stat'],
-                    'base_defense':data['stats'][2]['base_stat'],
-                    'base_attack':data['stats'][3]['base_stat'],
-                    'sprite_url':data['sprites']['front_shiny']
+            data = response.json()           
+            pokemon_dict={
+                'name':data['forms'][0]['name'],
+                'base_hp':data['stats'][0]['base_stat'],
+                'base_defense':data['stats'][2]['base_stat'],
+                'base_attack':data['stats'][3]['base_stat'],
+                'sprite_url':data['sprites']['front_shiny']
             }
-                all_pokemon.append(pokemon_dict)
-            print(all_pokemon)
-            return render_template('pokemon.html.j2',pokemon=all_pokemon)
+            print(pokemon_dict)
+            return render_template('pokemon.html.j2',pokemon=pokemon_dict)
 
-    else:
-        return "We have a problem! Your pokemon is not in the server!"
-        # The request fail
+        else:
+            return "We have a problem! Your pokemon is not in the server!"
+            # The request fail
 
     return render_template('pokemon.html.j2')
 
