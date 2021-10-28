@@ -15,15 +15,52 @@ def index():
 def login():
     form = LoginForm()
     if request.method == 'POST' and form.validate_on_submit():
-        # Do login Stuff
-        email = form.email.data.lower()
-        password = form.password.data
-        if email in app.config.get('REGISTERED_USERS',{}).keys() and password == app.config.get('REGISTERED_USERS',{}).get(email).get('password'):
-            #Login success!!!!!!!!
-            return f"Login Success Welcome {app.config.get('REGISTERED_USERS',{}).get(email).get('name')}" 
-        error_string = "Incorrect Email/Password Combo"
-        return render_template("login.html.j2", form=form, error=error_string)
-    return render_template("login.html.j2", form=form)
+        #do Login stuff
+        email = request.form.get("email").lower()
+        password = request.form.get("password")
+                                #Database col = form inputted email
+        u = User.query.filter_by(email=email).first()
+
+        if u and u.check_hashed_password(password): 
+            login_user(u)
+            # give the user feedback that you logged in successfully
+            return redirect(url_for("index")) 
+
+        #if email in app.config.get("REGISTERED_USERS") and \
+            #password == app.config.get("REGISTERED_USERS").get(email).get('password'):
+            #return f"Login success Welcome {app.config.get('REGISTERED_USERS').get(email).get('name')}"
+        error_string = "Invalid Email password combo"
+        return render_template('login.html.j2', error = error_string, form=form)
+    return render_template('login.html.j2', form=form)
+
+@app.route('/logout')
+def logout():
+    if current_user:
+        logout_user()
+        return redirect(url_for('login'))
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = Registration()
+    if request.method == 'POST' and form.validate_on_submit():
+        try:
+            new_user_data = {
+                "first_name":form.first_name.data.title(),
+                "last_name":form.last_name.data.title(),
+                "email":form.email.data.lower(),
+                "password": form.password.data
+            }
+            new_user_object = User()
+            # build user with form data
+            new_user_object.from_dict(new_user_data)
+            # save user to database
+            new_user_object.save()
+        except:
+            error_string = "There was an unexpected Error creating your account. Please Try ahain"
+            return render_template('register.html.j2', form=form, error = error_string) #1 When we had an error creating a user
+        return render_template(url_for('login')) #2 on a post request that successfully creates a new user
+    return render_template('register.html.j2', form = form) #3 the render template on the Get request
 
 @app.route('/pokemon', methods = ['GET', 'POST'])
 def pokemon():
