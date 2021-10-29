@@ -22,3 +22,13 @@ class RegisterForm(FlaskForm):
                         # filter_by always gives a list
         if same_email_user:
             raise ValidationError("Email is Already in Use")
+
+
+class PokemonForm(FlaskForm):
+    name = StringField('name', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+
+
+
+
