@@ -1,7 +1,10 @@
-from flask import render_template, request
+
+from flask import render_template, request, redirect, url_for
 import requests
 from app import app
-from .forms import LoginForm
+from .forms import LoginForm, RegisterForm
+from .models import User
+from flask_login import login_user, current_user, logout_user, login_required
 
 
 
@@ -42,7 +45,7 @@ def logout():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    form = Registration()
+    form = RegisterForm()
     if request.method == 'POST' and form.validate_on_submit():
         try:
             new_user_data = {
