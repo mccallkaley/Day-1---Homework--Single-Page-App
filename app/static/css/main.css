@@ -1,3 +1,11 @@
 .container{
     margin-top: 50px;
 }
+
+body{
+    background-color:pink;
+}
+h1 {
+    color: #00ffff;
+    
+    text-align: center;
