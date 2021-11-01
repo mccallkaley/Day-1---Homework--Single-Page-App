@@ -54,10 +54,10 @@ class EditProfileForm(FlaskForm):
     r3=random.randint(2001,3000)
     r4=random.randint(3001,4000)
 
-    r1_img=Markup(f'<img src="https://avatars.dicebear.com/api/bottts/{r1}.svg" style="height:75px">')
-    r2_img=Markup(f'<img src="https://avatars.dicebear.com/api/bottts/{r2}.svg" style="height:75px">')
-    r3_img=Markup(f'<img src="https://avatars.dicebear.com/api/bottts/{r3}.svg" style="height:75px">')
-    r4_img=Markup(f'<img src="https://avatars.dicebear.com/api/bottts/{r4}.svg" style="height:75px">')
+    r1_img=Markup(f'<img src="https://avatars.dicebear.com/api/identicon/{r1}.svg" style="height:75px">')
+    r2_img=Markup(f'<img src="https://avatars.dicebear.com/api/identicon/{r2}.svg" style="height:75px">')
+    r3_img=Markup(f'<img src="https://avatars.dicebear.com/api/identicon/{r3}.svg" style="height:75px">')
+    r4_img=Markup(f'<img src="https://avatars.dicebear.com/api/identicon/{r4}.svg" style="height:75px">')
 
     icon = RadioField('Avatar',
                     choices=[(9000,"Don't Change"),(r1,r1_img),(r2,r2_img),(r3,r3_img),(r4,r4_img)],
