@@ -8,20 +8,22 @@ from app import login
 # make a new database in elephant sql)
 # hide in .env
 
-class User(UserMixin, db.Model):
+
 #set columns and what they are
-    id= db.Column(db.Integer, primary_key=True)   #create our column
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)  #create our column
     first_name = db.Column(db.String(150))
     last_name = db.Column(db.String(150))
-    email =  db.Column(db.String(200),unique=True)     #username need a unique one
+    email = db.Column(db.String(200), unique=True, index=True) #username need a unique one
     password = db.Column(db.String(200))
+    icon = db.Column(db.Integer)
     created_on = db.Column(db.DateTime, default=dt.utcnow) #ut universal time zone  always do this
 
 
     #give methods to take instance of user class
-
-    def __repr__(self):   #will print out when you print your object
+    def __repr__(self):  #will print out when you print your object
         return f'<User: {self.id} | {self.email}>'
+
 
     #McCall = User()
     #print(McCall)
@@ -31,7 +33,8 @@ class User(UserMixin, db.Model):
     def from_dict(self, data):
         self.first_name = data['first_name']
         self.last_name = data['last_name']
-        self.email = data['email']
+        self.email = data["email"]
+        self.icon = data['icon']
         self.password = self.hash_password(data['password'])
 
         # use hashing for password = takes your string and gives you scrambled combos that = it 
@@ -45,11 +48,13 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password, login_password)
 
     # saves the user to the database and when you have to change user you need to change this 
+    
     def save(self):
         db.session.add(self) # add the user to the db session
         db.session.commit()  # save everything in session to the database do this LAST
 
-
+    def get_icon_url(self):
+        return f'https://avatars.dicebear.com/api/identicon/{self.icon}.svg'
 
     
 @login.user_loader   #this is going to decorate a func- make a func that tells flask login what criteria
