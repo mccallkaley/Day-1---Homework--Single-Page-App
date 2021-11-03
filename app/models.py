@@ -1,5 +1,6 @@
+from sqlalchemy.orm import backref
 from app import db
-from flask_login import UserMixin
+from flask_login import current_user,  UserMixin
 from datetime import datetime as dt
 from werkzeug.security import generate_password_hash, check_password_hash
 from app import login
@@ -18,7 +19,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(200))
     icon = db.Column(db.Integer)
     created_on = db.Column(db.DateTime, default=dt.utcnow) #ut universal time zone  always do this
-
+    pokemons = db.relationship('Pokemon', backref='author', lazy='dynamic')
 
     #give methods to take instance of user class
     def __repr__(self):  #will print out when you print your object
@@ -64,3 +65,62 @@ def load_user(id):
     
 
 # same as(SELECT * FROM user WHERE id = ???)
+
+class Pokemon(db.Model):
+    id = db.Column(db.Integer, primary_key=True)  #create our column
+    name =db.Column(db.String(150), unique=True, index=True) #make unique so that pokemon only saves to that user
+    base_hp =db.Column(db.Integer) #is a number so  int
+    base_defense =db.Column(db.Integer)
+    base_attack =db.Column(db.Integer)
+    sprite_url =db.Column(db.String(500))
+    date_created = db.Column(db.DateTime, default=dt.utcnow)
+    date_updated = db.Column(db.DateTime, onupdate=dt.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id')) #pulls in user id  from user table
+
+    def from_dict(self,data):
+        self.name = data['name']
+        self.base_hp = data['base_hp']
+        self.base_defense = data['base_defense']
+        self.base_attack = data['base_attack']
+        self.sprite_url = data['sprite_url']
+        self.user_id = current_user.id
+
+        # need to import current_user.id at top from userlogin
+
+ # saves the Post to the database (the pokemon)
+    def save(self):
+        db.session.add(self) # add the Post to the db session
+        db.session.commit() #save everything in the session to the database
+
+    #def edit(self, new_body):
+     #   self.body=new_body
+     #   self.save()
+    
+    def __repr__(self):
+        return f'<id:{self.id} | Post: {self.name}>'
+
+
+
+
+
+
+
+
+
+#class Post(db.Model):
+#    id = db.Column(db.Integer, primary_key=True)
+#    body = db.Column(db.Text)
+#    date_created = db.Column(db.DateTime, default=dt.utcnow)
+ #   date_updated = db.Column(db.DateTime, onupdate=dt.utcnow)
+ #   user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+
+    # saves the Post to the database
+#    def save(self):
+  #      db.session.add(self) # add the Post to the db session
+  #      db.session.commit() #save everything in the session to the database
+
+#    def edit(self, new_body):
+#        self.body=new_body
+#        self.save()
+##    def __repr__(self):
+ #       return f'<id:{self.id} | Post: {self.body[:15]}>'

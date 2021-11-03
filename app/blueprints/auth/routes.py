@@ -51,6 +51,7 @@ def register():
             new_user_object.from_dict(new_user_data)
             # save user to database
             new_user_object.save()
+            flash('You have been registered to the system!', 'primary')
         except:
             error_string = "There was an unexpected Error creating your account. Please Try again."
             return render_template('register.html.j2',form=form, error = error_string) #when we had an error creating a user
