@@ -1,6 +1,7 @@
 from flask import render_template, request, flash
 import requests
 from flask_login import login_required
+from app.blueprints.auth.forms import PokemonForm
 
 from app.models import Pokemon
 from .import bp as main
@@ -13,6 +14,7 @@ def index():
 
 @main.route('/pokemon', methods = ['GET', 'POST'])
 def pokemon():
+    form = PokemonForm()
     if request.method == 'POST':
         name = request.form.get('name')
         url = f"https://pokeapi.co/api/v2/pokemon/{name}"
@@ -37,10 +39,10 @@ def pokemon():
             new_pokemon_object.save()
             flash('New pokemon added to your team!', 'success')
 
-            pokemon_dict.append(new_pokemon_object)
+            #pokemon_dict.update(new_pokemon_object)
             print(pokemon_dict)
             return render_template('pokemon.html.j2',pokemon=pokemon_dict)
-
+            
 
 
             #print(pokemon_dict)

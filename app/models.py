@@ -68,14 +68,15 @@ def load_user(id):
 
 class Pokemon(db.Model):
     id = db.Column(db.Integer, primary_key=True)  #create our column
-    name =db.Column(db.String(150), unique=True, index=True) #make unique so that pokemon only saves to that user
-    base_hp =db.Column(db.Integer) #is a number so  int
+    name =db.Column(db.String(150), unique=True, index=True) 
+    base_hp =db.Column(db.Integer) #unique a number so  int
     base_defense =db.Column(db.Integer)
     base_attack =db.Column(db.Integer)
     sprite_url =db.Column(db.String(500))
     date_created = db.Column(db.DateTime, default=dt.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=dt.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id')) #pulls in user id  from user table
+    
 
     def from_dict(self,data):
         self.name = data['name']
@@ -92,12 +93,28 @@ class Pokemon(db.Model):
         db.session.add(self) # add the Post to the db session
         db.session.commit() #save everything in the session to the database
 
-    #def edit(self, new_body):
-     #   self.body=new_body
-     #   self.save()
+    def edit(self, name, base_hp, base_defense,base_attack, sprite_url):
+        self.name = name
+        self.base_hp= base_hp
+        self.base_defense = base_defense
+        self.base_attack = base_attack
+        self.sprite_url = sprite_url
+        self.save()
     
     def __repr__(self):
         return f'<id:{self.id} | Post: {self.name}>'
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def edit(self, body):
+        self.body = body
+        self.save()
 
 
 
