@@ -1,9 +1,12 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, RadioField
-from wtforms.validators import Email, DataRequired, EqualTo, ValidationError
+from wtforms import StringField, PasswordField, SubmitField, RadioField 
+from wtforms.fields.core import FloatField
+from wtforms.fields.simple import FileField
+from wtforms.validators import Email, DataRequired, EqualTo, ValidationError 
 from app.models import User
 import random
 from jinja2 import Markup
+from flask_wtf.file import FileField, FileAllowed
 
 class LoginForm(FlaskForm):
     email = StringField('Email Address', validators=[DataRequired(),Email()])
@@ -66,8 +69,11 @@ class EditProfileForm(FlaskForm):
 
 
 
-class PokemonForm(FlaskForm):
-    name = StringField('name', validators=[DataRequired()])
+class ProductForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    description = StringField('Description', validators=[DataRequired()])
+    picture = FileField('Product picture', validators=[FileAllowed(['jpg','png'])])
+    price = FloatField('Price', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 class SearchForm(FlaskForm):

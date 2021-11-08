@@ -19,7 +19,8 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(200))
     icon = db.Column(db.Integer)
     created_on = db.Column(db.DateTime, default=dt.utcnow) #ut universal time zone  always do this
-    pokemons = db.relationship('Pokemon', backref='author', lazy='dynamic')
+    products = db.relationship("Product", backref="author", lazy=True)
+    cart = db.relationship("Cart", backref="user", lazy=True)
 
     #give methods to take instance of user class
     def __repr__(self):  #will print out when you print your object
@@ -66,64 +67,72 @@ def load_user(id):
 
 # same as(SELECT * FROM user WHERE id = ???)
 
-class Pokemon(db.Model):
+class Product(db.Model):
+    __tablename__ = "product"
     id = db.Column(db.Integer, primary_key=True)  #create our column
-    name =db.Column(db.String(150), unique=True,  index=True)   #unique=True
-    base_hp =db.Column(db.Integer) #unique a number so  int
-    base_defense =db.Column(db.Integer)
-    base_attack =db.Column(db.Integer)
-    sprite_url =db.Column(db.String(500))
+    name = db.Column(db.String(200))
+    description = db.Column(db.Text)
+    price = db.Column(db.Float)
+    img = db.Column(db.String)
     date_created = db.Column(db.DateTime, default=dt.utcnow)
     date_updated = db.Column(db.DateTime, onupdate=dt.utcnow)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id')) #pulls in user id  from user table
+    cart = db.relationship("Cart", backref="products", lazy=True)
     
-
-    def from_dict(self,data):
-        self.name = data['name']
-        self.base_hp = data['base_hp']    #hit-points of this particular pokemon
-        self.base_defense = data['base_defense']
-        self.base_attack = data['base_attack']
-        self.sprite_url = data['sprite_url']
-        self.user_id = current_user.id
-
-        # need to import current_user.id at top from userlogin
-
     def __repr__(self):
-        return f'<id:{self.id} | Post: {self.name}>'
-
- # saves the Post to the database (the pokemon)
-    def save(self):
-        db.session.add(self) # add the Post to the db session
-        db.session.commit() #save everything in the session to the database
-
-    def edit(self, name, base_hp, base_defense,base_attack, sprite_url):
-        self.name = name
-        self.base_hp= base_hp
-        self.base_defense = base_defense
-        self.base_attack = base_attack
-        self.sprite_url = sprite_url
-        self.save()
-    
-    
-
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
+        return f'<Item: {self.id} | {self.name}>'
 
     def save(self):
         db.session.add(self)
         db.session.commit()
+    
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
 
-    def fight(self,other):
-        if(self.base_hp > 0):
-            print("%s did %b damage to %s"%(self.name,self.base_attack,other.name))
-            print("%s has %d hp left"%(other.name,other.base_hp))
+        def __repr__(self):
+            return f"{self.name}"
 
-            other.base_hp -= self.base_attack
-            return other.fight(self)  #Now the other pokemon fights back
-        else:
-            print("%s wins! (%d hp left)"%(other.name,other.base_hp))
-            return other,self  #return a tuple (winner,loser)
+    def from_dict(self, data):
+        self.name = data['name']
+        self.image_file = data['image_file']
+        self.description = data['description']
+        self.user_id = data['user_id']
+        self.price = data['price']
+        self.save()
+
+    def total_price(self, user_id):
+        price_list = []
+        cart_product = Cart.query.filter_by(user_id = user_id).all()
+        for product in cart_product:
+            product_price =  Product.query.filter_by(id = product.product_id).first().price 
+            price_list.append(product_price)
+        return sum(price_list)
+    
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+
+class Cart(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    product_id  = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    
+    def __repr__(self):
+        product = Product.query.filter_by(id = self.product_id).first()
+        return f'{product.name}'
+
+    def from_dict(self, data):
+        self.user_id = data['user_id']
+        self.product_id = data['product_id']
+        self.save()
+
+    def save(self):
+        db.session.add(self) 
+        db.session.commit() 
+
+    
 
 
 
