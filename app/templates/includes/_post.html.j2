@@ -12,9 +12,9 @@
         <p class="card-text">{{pokemon.sprite_url}}</p>
         <small><a href="">View My Pokemon Team</a></small>
 
-        {#{% if current_user.id == post.author.id %}
-        <small><a href="{{url_for('social.edit_post', id=post.id)}}">Edit Post</a></small>
-        {% endif %} #}       
+        {% if current_user.id == post.author.id %}
+        <small><a href="{{url_for('main.edit_post', id=post.id)}}">Edit Post</a></small>
+        {% endif %}       
 
         <p class="card-text"><small class="text-muted">{{moment(post.date_created).fromNow()}}</small></p>
       </div>

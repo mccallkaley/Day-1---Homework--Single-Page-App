@@ -68,7 +68,7 @@ def load_user(id):
 
 class Pokemon(db.Model):
     id = db.Column(db.Integer, primary_key=True)  #create our column
-    name =db.Column(db.String(150), unique=True, index=True) 
+    name =db.Column(db.String(150),  index=True)   #unique=True
     base_hp =db.Column(db.Integer) #unique a number so  int
     base_defense =db.Column(db.Integer)
     base_attack =db.Column(db.Integer)
@@ -80,13 +80,16 @@ class Pokemon(db.Model):
 
     def from_dict(self,data):
         self.name = data['name']
-        self.base_hp = data['base_hp']
+        self.base_hp = data['base_hp']    #hit-points of this particular pokemon
         self.base_defense = data['base_defense']
         self.base_attack = data['base_attack']
         self.sprite_url = data['sprite_url']
         self.user_id = current_user.id
 
         # need to import current_user.id at top from userlogin
+
+    def __repr__(self):
+        return f'<id:{self.id} | Post: {self.name}>'
 
  # saves the Post to the database (the pokemon)
     def save(self):
@@ -101,8 +104,7 @@ class Pokemon(db.Model):
         self.sprite_url = sprite_url
         self.save()
     
-    def __repr__(self):
-        return f'<id:{self.id} | Post: {self.name}>'
+    
 
     def delete(self):
         db.session.delete(self)
@@ -112,9 +114,16 @@ class Pokemon(db.Model):
         db.session.add(self)
         db.session.commit()
 
-    def edit(self, body):
-        self.body = body
-        self.save()
+    def fight(self,other):
+        if(self.base_hp > 0):
+            print("%s did %b damage to %s"%(self.name,self.base_attack,other.name))
+            print("%s has %d hp left"%(other.name,other.base_hp))
+
+            other.base_hp -= self.base_attack
+            return other.fight(self)  #Now the other pokemon fights back
+        else:
+            print("%s wins! (%d hp left)"%(other.name,other.base_hp))
+            return other,self  #return a tuple (winner,loser)
 
 
 

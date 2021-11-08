@@ -3,7 +3,7 @@ import requests
 from flask_login import login_required
 from app.blueprints.auth.forms import PokemonForm
 
-from app.models import Pokemon
+from app.models import *
 from .import bp as main
 
 @main.route('/', methods = ['GET'])
@@ -39,21 +39,32 @@ def pokemon():
             new_pokemon_object.save()
             flash('New pokemon added to your team!', 'success')
 
-            #pokemon_dict.update(new_pokemon_object)
-            print(pokemon_dict)
-            return render_template('pokemon.html.j2',pokemon=pokemon_dict)
-            
-
-
-            #print(pokemon_dict)
-            #return render_template('pokemon.html.j2',pokemon=pokemon_dict)
-
+            poke = Pokemon.query.filter_by(name = form.name.data.lower()).first()
+            if poke:
+                flash('Pokemon already exists', 'danger')
+            else:
+                poke = Pokemon(name = pokemon_dict['name'], base_hp = pokemon_dict['base_hp'], sprite_url = pokemon_dict['sprites'])
+                poke.save()
+            return render_template("pokemon.html.j2",form=form, pokemon=pokemon_dict)
         else:
-            return "We have a problem! Your pokemon is not in the server!"
-            # The request fail
+            flash(f'Please check for error', 'danger')
+            render_template("pokemon.html.j2",form=form)
+    return render_template("pokemon.html.j2", form=form)
 
-    return render_template('pokemon.html.j2')
+@main.route('/edit_post/<int:id>', methods=['GET','POST'])
+@login_required
+def edit_post(id):
+    post = Post.query.get(id)
+    if request.method == 'POST':
+        post.edit(request.form.get('body'))
+        flash("Your post has been edited","success")
+    return render_template('edit_post.html.j2', post=post)
 
+@main.route('/post/my_posts')
+@login_required
+def my_posts():
+    posts = current_user.posts
+    return render_template('my_posts.html.j2', posts=posts)
 
 
 
@@ -64,4 +75,4 @@ def pokemon():
                  #base stat for attack
        #from the sprites section:
       # front_shiny (URL to the image)#}
-      #base_exper = data['base_experience']
+      #base_exper = data['base_hp']

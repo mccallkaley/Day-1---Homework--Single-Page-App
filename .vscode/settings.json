@@ -6,8 +6,8 @@
             "port": 5432,
             "askForPassword": true,
             "driver": "PostgreSQL",
-            "name": "HW_Flask",
-            "connectString": "postgres://jpblfujn:0eD9lTscxu7YdiQf1BtxOKssk0f2GQ1G@fanny.db.elephantsql.com/jpblfujn"
+            "name": "HW_Flask_2",
+            "connectString": "postgres://awrrdiay:M__iSsdP0pXgvyBN_7aCpgb4xCITH1EP@fanny.db.elephantsql.com/awrrdiay"
         }
     ]
 }
