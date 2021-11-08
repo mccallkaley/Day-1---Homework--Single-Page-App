@@ -69,3 +69,9 @@ class EditProfileForm(FlaskForm):
 class PokemonForm(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
     submit = SubmitField('Submit')
+
+class SearchForm(FlaskForm):
+    class Meta:
+        csrf = False
+    search = StringField('Search', validators=[DataRequired()])
+    submit = SubmitField('Submit')

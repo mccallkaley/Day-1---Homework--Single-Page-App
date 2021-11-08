@@ -8,7 +8,7 @@ My Pokemon team
     <hr>
     I have a list of pokemon posts being passed in to the template
 
-    {% for post in posts %}
+    {% for pokemon in all_pokemon %}
         {% include './includes/_post.html.j2' %}
     {% endfor %}
 {% endblock %}

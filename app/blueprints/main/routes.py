@@ -1,7 +1,9 @@
-from flask import render_template, request, flash
+from flask import render_template, request, flash, g
+from flask_wtf import *
 import requests
 from flask_login import login_required
-from app.blueprints.auth.forms import PokemonForm
+from app.blueprints.auth.forms import PokemonForm, SearchForm
+
 
 from app.models import *
 from .import bp as main
@@ -31,20 +33,24 @@ def pokemon():
                 'base_attack':data['stats'][3]['base_stat'],
                 'sprite_url':data['sprites']['front_shiny']
             }
-             #create and empty user
-            new_pokemon_object = Pokemon()
-            # build user with form data
-            new_pokemon_object.from_dict(pokemon_dict)
-            # save user to database
-            new_pokemon_object.save()
-            flash('New pokemon added to your team!', 'success')
+             
 
             poke = Pokemon.query.filter_by(name = form.name.data.lower()).first()
+            pokemoncount = Pokemon.query.count()
+
             if poke:
                 flash('Pokemon already exists', 'danger')
+            elif pokemoncount>=5:
+                flash('You can only have 5 pokemon!')
+
             else:
-                poke = Pokemon(name = pokemon_dict['name'], base_hp = pokemon_dict['base_hp'], sprite_url = pokemon_dict['sprites'])
-                poke.save()
+                #create and empty user
+                new_pokemon_object = Pokemon()
+                # build user with form data
+                new_pokemon_object.from_dict(pokemon_dict)
+                # save user to database
+                new_pokemon_object.save()
+                flash('New pokemon added to your team!', 'success')
             return render_template("pokemon.html.j2",form=form, pokemon=pokemon_dict)
         else:
             flash(f'Please check for error', 'danger')
@@ -60,13 +66,26 @@ def edit_post(id):
         flash("Your post has been edited","success")
     return render_template('edit_post.html.j2', post=post)
 
-@main.route('/post/my_posts')
+# GET ALL POKEMON
+@main.route('/post/my_posts', methods=['GET','POST'])
 @login_required
 def my_posts():
-    posts = current_user.posts
-    return render_template('my_posts.html.j2', posts=posts)
+    all_pokemon = Pokemon.query.all()
+    print([all_pokemon])
+    
+    
+    #all_pokemon = Pokemon.query.all()
+    #all_pokemon= current_user.all_pokemon
+    #Pokemon.query.all()
+    #if current_user.id == post.author.id 
+ 
+    return render_template('my_posts.html.j2', my_posts=all_pokemon)
 
 
+
+
+
+ #if user and current_user.email != user.email:
 
     
        #from the stats section:

@@ -68,7 +68,7 @@ def load_user(id):
 
 class Pokemon(db.Model):
     id = db.Column(db.Integer, primary_key=True)  #create our column
-    name =db.Column(db.String(150),  index=True)   #unique=True
+    name =db.Column(db.String(150), unique=True,  index=True)   #unique=True
     base_hp =db.Column(db.Integer) #unique a number so  int
     base_defense =db.Column(db.Integer)
     base_attack =db.Column(db.Integer)
