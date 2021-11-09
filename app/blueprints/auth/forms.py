@@ -72,7 +72,7 @@ class EditProfileForm(FlaskForm):
 class ProductForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
     description = StringField('Description', validators=[DataRequired()])
-    picture = FileField('Product picture', validators=[FileAllowed(['jpg','png'])])
+    img= FileField('Product picture', validators=[FileAllowed(['jpg','png'])])
     price = FloatField('Price', validators=[DataRequired()])
     submit = SubmitField('Submit')
 

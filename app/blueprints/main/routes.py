@@ -46,7 +46,7 @@ def create_product():
     form = ProductForm()
     if form.validate_on_submit():
         print("Yes")
-        print("Product shown", form.picture.data)
+        print("Product shown", form.img.data)
 
         product_data = {
         'name' : form.name.data,
@@ -55,6 +55,8 @@ def create_product():
         'img' : form.img,
         'price' : form.price.data
         }
+
+      
 
         Product().from_dict(product_data)
         print("Product has been saved!")
@@ -67,22 +69,28 @@ def product(product_id):
     product = Product.query.get_or_404(product_id)
     return render_template('product.html.j2', product=product)
 
+@main.route("/select_products", methods=['GET', 'POST'])
+def select_products():
+    products = Product.query.all()
+    return render_template('select_products.html', products=products)
+
+
 @main.route('/addtocart/<int:product_id>', methods=['GET'])
 @login_required
 def addtocart(product_id):
-    product_data = {
-        'user_id' : current_user.id,
-        'product_id' : product_id
-    }
-    check_product_in_cart = bool(Cart.query.filter_by(user_id = product_data['user_id'], product_id = product_data['product_id']).first())
-    
-    if check_product_in_cart == True:
-        flash(f'Product already in your cart', 'danger')
-        return redirect(url_for('cart'))
+     # check if product is already in cart
+    row = Cart.query.filter_by(product_id=product_id, buyer=current_user).first()
+    if row:
+        # if in cart update quantity : +1
+        row.quantity += 1
+        db.session.commit()
+        flash('This item is already in your cart, 1 quantity added!', 'success')
+        
+        # if not, add item to cart
     else:
-        Cart().from_dict(product_data)
-        flash(f'Product has been added to your cart', 'success')
-        return redirect(url_for('cart'))
+        user = User.query.get(current_user.id)
+        user.add_to_cart(product_id)
+    return redirect(url_for('product.html'))
 
 
 @main.route('/cart', methods=['GET'])
@@ -92,6 +100,7 @@ def cart():
     cart_products = (Product.query.filter_by(id = product.product_id).first() for product in user_cart)
     products = list(cart_products)
     total = Product().total_price(user_id= current_user.id)
+    qty = request.form.get("qty")
     return render_template("cart.html.j2", products = products, total = total)
 
 

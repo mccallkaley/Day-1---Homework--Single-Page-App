@@ -94,12 +94,12 @@ class Product(db.Model):
             return f"{self.name}"
 
     def from_dict(self, data):
-        self.name = data['name']
-        self.image_file = data['image_file']
-        self.description = data['description']
-        self.user_id = data['user_id']
-        self.price = data['price']
-        self.save()
+            self.name = data['name']
+            self.img = data['img']
+            self.description = data['description']
+            self.user_id = data['user_id']
+            self.price = data['price']
+            self.save()
 
     def total_price(self, user_id):
         price_list = []
@@ -118,6 +118,7 @@ class Cart(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_id  = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False, default=1)
     
     def __repr__(self):
         product = Product.query.filter_by(id = self.product_id).first()

@@ -8,6 +8,15 @@
             "driver": "PostgreSQL",
             "name": "HW_Flask_2",
             "connectString": "postgres://awrrdiay:M__iSsdP0pXgvyBN_7aCpgb4xCITH1EP@fanny.db.elephantsql.com/awrrdiay"
+        },
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "askForPassword": true,
+            "driver": "PostgreSQL",
+            "name": "Ecommerce",
+            "connectString": "postgres://hstditdr:TAtZM_5e0GyIzsHCob2W2uTa3C2gWX9K@fanny.db.elephantsql.com/hstditdr"
         }
     ]
 }

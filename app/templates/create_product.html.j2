@@ -24,10 +24,10 @@ Create Product
     {{ form.price.label(class="form-label") }}
     {{ form.price(class="form-control") }}
 
-    {{ form.picture.label() }}
-    {{ form.picture(class="form-control-file mt-2") }}
-    {% if form.picture.errors %}
-          {% for error in form.picture.errors %}
+    {{ form.img.label() }}
+    {{ form.img(class="form-control-file mt-2") }}
+    {% if form.img.errors %}
+          {% for error in form.img.errors %}
                   <span class="text-danger">{{ error }}</span><br>
           {% endfor %}
       {% endif %}
