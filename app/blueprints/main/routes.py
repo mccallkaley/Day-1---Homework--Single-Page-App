@@ -1,13 +1,8 @@
-from flask import render_template, request, flash, g,redirect
-from flask.helpers import url_for
+from flask import render_template, request, flash, g
 from flask_wtf import *
 import requests
 from flask_login import login_required
-from app.blueprints.auth.forms import  ProductForm 
-from PIL import Image
-from app.models import User, Product, Cart
-import secrets
-import os
+from app.blueprints.auth.forms import PokemonForm, SearchForm
 
 
 from app.models import *
@@ -18,110 +13,73 @@ from .import bp as main
 def index():
     return render_template('index.html.j2')
 
-def save_picture(form_picture):
-    random_hex = secrets.token_hex(8)
-    _, f_ext = os.path.splitext(form_picture.filename)
-    picture_fn = random_hex + f_ext
-    picture_path = os.path.join(main.root_path, 'static/product_pics', picture_fn)
+
+@main.route('/pokemon', methods = ['GET', 'POST'])
+def pokemon():
+    form = PokemonForm()
+    if request.method == 'POST':
+        name = request.form.get('name')
+        url = f"https://pokeapi.co/api/v2/pokemon/{name}"
+        response = requests.get(url)
+        if response.ok:
+            # The request worked
+            if not response.json():
+                return "We had an error loading your data likely the pokemon is not in the database."
+            data = response.json()           
+            pokemon_dict={
+                'name':data['forms'][0]['name'],
+                'base_hp':data['stats'][0]['base_stat'],
+                'base_defense':data['stats'][2]['base_stat'],
+                'base_attack':data['stats'][3]['base_stat'],
+                'sprite_url':data['sprites']['front_shiny']
+            }
+             
+
+            poke = Pokemon.query.filter_by(name = form.name.data.lower()).first()
+            pokemoncount = Pokemon.query.count()
+
+            if poke:
+                flash('Pokemon already exists', 'danger')
+            elif pokemoncount>=5:
+                flash('You can only have 5 pokemon!')
+
+            else:
+                #create and empty user
+                new_pokemon_object = Pokemon()
+                # build user with form data
+                new_pokemon_object.from_dict(pokemon_dict)
+                # save user to database
+                new_pokemon_object.save()
+                flash('New pokemon added to your team!', 'success')
+            return render_template("pokemon.html.j2",form=form, pokemon=pokemon_dict)
+        else:
+            flash(f'Please check for error', 'danger')
+            render_template("pokemon.html.j2",form=form)
+    return render_template("pokemon.html.j2", form=form)
+
+@main.route('/edit_post/<int:id>', methods=['GET','POST'])
+@login_required
+def edit_post(id):
+    post = Post.query.get(id)
+    if request.method == 'POST':
+        post.edit(request.form.get('body'))
+        flash("Your post has been edited","success")
+    return render_template('edit_post.html.j2', post=post)
+
+# GET ALL POKEMON
+@main.route('/post/my_posts', methods=['GET','POST'])
+@login_required
+def my_posts():
+    all_pokemon = Pokemon.query.all()
+    print([all_pokemon])
     
-    output_size = (300, 300)
-    i = Image.open(form_picture)
-    i.thumbnail(output_size)
-    i.save(picture_path)
-
-    return picture_fn
-
-# # Create a item
-# {
-#     "name": new name
-#     "description": new desc
-#     "price": new price
-#     "img": new img
-#     "category_id":new cat id
-# }
-# route for  new product created
-@main.route('/createproduct', methods=['GET','POST'])
-@login_required
-def create_product():
-    form = ProductForm()
-    if form.validate_on_submit():
-        print("Yes")
-        print("Product shown", form.img.data)
-
-        product_data = {
-        'name' : form.name.data,
-        'description' : form.description.data,
-        'user_id' : current_user.id,
-        'img' : form.img,
-        'price' : form.price.data
-        }
-
-      
-
-        Product().from_dict(product_data)
-        print("Product has been saved!")
-        return redirect(url_for("index"))
     
-    return render_template("create_product.html.j2", form=form)
-
-@main.route("/product/<int:product_id>")
-def product(product_id):
-    product = Product.query.get_or_404(product_id)
-    return render_template('product.html.j2', product=product)
-
-@main.route("/select_products", methods=['GET', 'POST'])
-def select_products():
-    products = Product.query.all()
-    return render_template('select_products.html', products=products)
-
-
-@main.route('/addtocart/<int:product_id>', methods=['GET'])
-@login_required
-def addtocart(product_id):
-     # check if product is already in cart
-    row = Cart.query.filter_by(product_id=product_id, buyer=current_user).first()
-    if row:
-        # if in cart update quantity : +1
-        row.quantity += 1
-        db.session.commit()
-        flash('This item is already in your cart, 1 quantity added!', 'success')
-        
-        # if not, add item to cart
-    else:
-        user = User.query.get(current_user.id)
-        user.add_to_cart(product_id)
-    return redirect(url_for('product.html'))
-
-
-@main.route('/cart', methods=['GET'])
-@login_required
-def cart():
-    user_cart = Cart.query.filter_by(user_id = current_user.id).all()
-    cart_products = (Product.query.filter_by(id = product.product_id).first() for product in user_cart)
-    products = list(cart_products)
-    total = Product().total_price(user_id= current_user.id)
-    qty = request.form.get("qty")
-    return render_template("cart.html.j2", products = products, total = total)
-
-
-@main.route('/deletefromcart/<int:product_id>', methods=['GET'])
-@login_required
-def deletefromcart(product_id):
-    product = Cart.query.filter_by(product_id = product_id, user_id = current_user.id).first()
-    db.session.delete(product)
-    db.session.commit()
-    flash('Product has been removed', 'success')
-    return redirect(url_for('cart'))
-
-
-@main.route('/deleteallfromcart', methods=['GET'])
-@login_required
-def deleteallfromcart():
-    db.session.query(Cart).filter(Cart.user_id == current_user.id).delete()
-    db.session.commit()
-    flash('All products have been removed', 'success')
-    return redirect(url_for('index'))
-
+    #all_pokemon = Pokemon.query.all()
+    #all_pokemon= current_user.all_pokemon
+    #Pokemon.query.all()
+    #if current_user.id == post.author.id 
+ 
+    return render_template('my_posts.html.j2', my_posts=all_pokemon)
 
 
 
@@ -130,4 +88,10 @@ def deleteallfromcart():
  #if user and current_user.email != user.email:
 
     
-       
+       #from the stats section:
+                 #base stat for hp
+                 #base stat for defense
+                 #base stat for attack
+       #from the sprites section:
+      # front_shiny (URL to the image)#}
+      #base_exper = data['base_hp']

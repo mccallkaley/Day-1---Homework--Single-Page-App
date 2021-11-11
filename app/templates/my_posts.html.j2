@@ -1,0 +1,14 @@
+{% extends 'base.html.j2' %}
+{% block title %}
+My Pokemon team
+{% endblock %}
+
+{% block content %}
+    <h1>My Pokemon</h1>
+    <hr>
+    I have a list of pokemon posts being passed in to the template
+
+    {% for pokemon in all_pokemon %}
+        {% include './includes/_post.html.j2' %}
+    {% endfor %}
+{% endblock %}
