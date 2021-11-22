@@ -33,13 +33,17 @@ Pokemon Results
             <td>{{pokemon['base_hp']}}</td>
             <td>{{pokemon['base_defense']}}</td>
             <td>{{pokemon['base_attack']}}</td>
-            <td>{{pokemon['sprite_url']}}</td>
-            </tr>            
+            <td><img src='{{pokemon.sprite_url}}'height=100 width=100></td>
+            </tr> 
+                      
         </tbody>
         </table>
     {% else %}
-    Enter the name of the Pokemon you want to look at
+    Enter the name of the Pokemon you want on your team!
     {% endif %}
+<br>
+    
+
 
 
 {% endblock %}       

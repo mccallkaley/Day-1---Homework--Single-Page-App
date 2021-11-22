@@ -1,0 +1,43 @@
+{% extends 'base.html.j2' %}
+{% block title %}
+My Pokemon team
+{% endblock %}
+
+{% block content %}
+    <h1>My Pokemon Team</h1>
+    <h4>You can have up to 5 Pokemon on your Team!</h4>
+    <hr>
+    
+    {% for pokemon in all_pokemon %}
+       
+
+  <div class="card mb-3" style="max-width: 540px;">
+  <div class="row g-0">
+    <div class="col-md-4">
+      <img src="{{pokemon.author.get_icon_url()}}" class="img-fluid rounded-start" alt="avatar">
+       <form method="POST" action="{{url_for('main.remove_pokemon', id = pokemon.id)}}">
+                <button type="submit" class="btn btn-danger"><i class=""></i>&nbsp;Remove</button>
+        </form>
+    </div>
+    <div class="col-md-8">
+      <div class="card-body">
+        <h5 class="card-title">{{pokemon.author.first_name}} {{pokemon.author.last_name}}  </h5>
+        <p class="card-text">{{pokemon.name}}</p>
+        <p class="card-text">{{pokemon.base_hp}}</p>
+        <p class="card-text">{{pokemon.base_defense}}</p>
+        <p class="card-text">{{pokemon.base_attack}}</p>
+        <p class="card-text"><img src="{{pokemon.sprite_url}}"></p>
+        <small><a href="">View My Pokemon Team</a></small>
+    
+        <p class="card-text"><small class="text-muted">{{moment(pokemon.date_created).fromNow()}}</small></p>
+      </div>
+      <form method="POST" action="{{url_for('main.add_pokemon', id = pokemon.id)}}">
+                <button type="submit" class="btn btn-info"><i class=""></i>&nbsp;Add more pokemon to your team!</button>
+        </form>
+    </div>
+  </div>
+</div>
+
+
+    {% endfor %}
+{% endblock %}
